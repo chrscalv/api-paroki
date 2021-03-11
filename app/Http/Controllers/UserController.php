@@ -6,18 +6,35 @@ use Illuminate\Http\Request;
 use App\Models\User;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
-use Illuminate\Support\Facades\Validator;
+use Validator;
+use Auth;
 
 class UserController extends Controller
 {
     public function index()
     {
-        return response()->json(User::all(),200);
+        $user = Auth::user();
+        if($user->hasPermissionTo('see all user')){
+            return response()->json(User::with('roles')->get(),200);
+        }{
+            return response()->json([
+                'response'=> 401,
+                'message' => 'Unauthorized'
+            ], 401);
+        }
     }
 
     public function show($user)
     {
-        return response()->json($user, 200);
+        $user = Auth::user();
+        if($user->hasPermissionTo('see user profile')){
+            return response()->json($user, 200);
+        }else{
+            return response()->json([
+                'response'  => 401,
+                'message'   => 'Unauthorized'
+            ], 401);
+        }
     }
 
     public function profile()
@@ -35,64 +52,82 @@ class UserController extends Controller
 
         if($validator->fails()){
             return response()->json([
-                'error' => $validator->error
+                'error' => $validator->errors()
             ]);
         }
 
         $status = 401;
-        $response = ['error'=>'Unauthorised'];
+        $response = ['error'=>'jancuk'];
 
-        if(Auth::attemt($request->only(['email', 'password']))){
+        if (Auth::attempt($request->only(['email', 'password']))) {
             $status = 200;
-            return response()->json([
-                'token'  => Auth::user(),
-                'tokens' => Auth::user()->createToken('blog')->accessToken()
-            ]);
-            return response()->json($status,$response);
+            $response = [
+                'user' => Auth::user(),
+                'token' => Auth::user()->createToken('blog')->accessToken,
+            ];
         }
+
+        return response()->json($response, $status);
     }
 
     public function register(Request $request)
     {
-        $validator = Validator::make($request->all(), [
-            'username'      => 'required|unique:users|max:255',
-            'email'         => 'required|email',
-            'password'      => 'required|min:6|',
-            'c_password'    => 'required|same:password'
-        ]);
-
-        if($validator->fails()){
-            return response()->json([
-                'error' => $validator->error
+        $user = Auth::user();
+        if($user->hasPermissionTo('register user')){
+            $validator = Validator::make($request->all(), [
+                'name'      => 'required|unique:users|max:255',
+                'email'         => 'required|email',
+                'password'      => 'required|min:6|',
+                'c_password'    => 'required|same:password'
             ]);
+    
+            if($validator->fails()){
+                return response()->json([
+                    'error' => $validator->errors()
+                ]);
+            }
+    
+            $data = $request->only('email','name', 'password');
+            $data['password'] = bcrypt($data['password']);
+            $user = User::create($data);
+            $user->assignRole($request->role);
+    
+            return response()->json([
+                'user'  => $user
+            ]);
+        }else{
+            return response()->json([
+                'response'  => 401,
+                'message'   => 'Unauthorized'
+            ],401);
         }
-
-        $data = $request->only('email','username');
-        $data['password'] = becrypt($data['password']);
-        $user = User::create($data);
-        $user->assignRole($request->role);
-
-        return response()->json([
-            'user'  => $user
-        ]);
     }
 
     public function update(Request $request)
     {
-        $validator = Validator::make($request->all(),[
-            'email'     => 'required|email',
-            'username'  => 'required|max:255'
-        ]);
-
-        if($validator->fails()){
+        $user = Auth::user();
+        if($user->hasPermissionTo('update user')){
+            $validator = Validator::make($request->all(),[
+                'email'     => 'required|email',
+                'username'  => 'required|max:255'
+            ]);
+    
+            if($validator->fails()){
+                return response()->json([
+                    'error' => $validator->error
+                ]);
+            }
+        }else{
             return response()->json([
-                'error' => $validator->error
+                'response'  => 401,
+                'message'   => ''
             ]);
         }
     }
 
     public function destroy(User $user)
     {
+        $user = Auth::user();
         $status     = $user->delete();
 
         return response()->json([
