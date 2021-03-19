@@ -7,10 +7,11 @@ use Illuminate\Database\Eloquent\Model;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 use \Spatie\Tags\HasTags;
+use \Conner\Tagging\Taggable;
 
 class Post extends Model
 {
-    use HasFactory, HasSlug, HasTags;
+    use HasFactory, HasSlug,Taggable;
 
     protected $fillable = [
         'title',
