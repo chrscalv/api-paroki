@@ -23,6 +23,13 @@ class Post extends Model
         'user_id'
     ];
 
+    protected $casts = [
+        'category_id' => 'string',
+        'published_at' => 'datetime:d-m-Y',
+        'updated_at' => 'datetime:d-m-Y',
+        'created_at' => 'datetime:d-m-y'
+    ];
+
     public function getSlugOptions() : SlugOptions
     {
         return SlugOptions::create()

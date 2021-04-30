@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Carbon;
 use App\Models\Post;
 use App\Models\User;
+use App\Models\Category;
 use Auth;
 class PostController extends Controller
 {
@@ -14,13 +15,18 @@ class PostController extends Controller
     {
         $user = Auth::user();
         if($user->hasPermissionTo('see all post')){
-            return response()->json(Post::with('tagged')->orderBy('id', 'DESC')->get(), 200);
+            return response()->json(Post::with('tagged', 'user:name', 'category:category')->orderBy('id', 'DESC')->get(), 200);
         }else{
             return response()->json([
                 'response'  => 401,
                 'message'   => 'Anauthorized'
             ]);
         }
+    }
+
+    public function allByCategory(Category $category)
+    {
+        return response()->json(Post::Where('category_id', '=', $category->id)->Where('is_published', '=', true)->with(['user' => fn ($query) => $query->select('id','name')])->get(), 200);
     }
 
     public function allByTag()
@@ -30,12 +36,12 @@ class PostController extends Controller
 
     public function all()
     {
-        return response()->json(Post::with('tagged')->where('is_published','=', true)->orderBy('id', 'DESC')->get(), 200);
+        return response()->json(Post::with('tagged','User','Category')->where('is_published','=', true)->orderBy('id', 'DESC')->get(), 200);
     }
 
     public function show($slug)
     {
-        return response()->json(Post::where('slug', '=', $slug)->with('tagged')->get(), 200);
+        return response()->json(Post::where('slug', '=', $slug)->with('tagged', 'User')->get(), 200);
     }
 
     public function store(Request $request)

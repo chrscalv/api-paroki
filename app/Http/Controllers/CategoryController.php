@@ -15,9 +15,25 @@ class CategoryController extends Controller
         return response()->json(Category::all(), 200);
     }
 
-    public function show(Category $category)
+    public function indexByRole()
     {
-        return response()->json(Category::where('slug', '=', $category->slug)->with('Post')->get(), 200);
+        $user = Auth::user();
+        if($user->hasPermissionTo('see berita paroki')){
+            return response()->json(Category::find(1)->get(), 200);
+        }if($user->hasPermissionTo('see renungan')){
+            return response()->json(Category::find(2)->get(), 200);
+        }else if($user->hasPermissionTo('see information')){
+            return response()->json(Category::find('3')->get(), 200);
+        }else {
+            return response()->json([
+                'error' => 'unauthorized'
+            ]);
+        }
+    }
+
+    public function show($id)
+    {
+        return response()->json(Category::where('id', '=', $id)->with('Post')->get(), 200);
     }
 
     public function store(Request $request)

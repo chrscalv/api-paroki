@@ -30,12 +30,26 @@ class RolePermissionSeeder extends Seeder
         Permission::create(['name'  => 'delete post']);
         Permission::create(['name'  => 'create category']);
         Permission::create(['name'  => 'update category']);
+        Permission::create(['name'  => 'see category by role']);
         Permission::create(['name'  => 'delete category']);
+        Permission::create(['name'  => 'see role']);
+        Permission::create(['name'  => 'upload image']);
+        Permission::create(['name'  => 'edit image']);
+        Permission::create(['name'  => 'delete image']);
+        Permission::create(['name'  => 'see berita paroki']);
+        Permission::create(['name'  => 'see renungan']);
+        Permission::create(['name'  => 'see information']);
 
         $role1  = Role::create(['name'  => 'admin']);
         $role1->givePermissionTo(Permission::all());
 
-        $role2 = Role::create(['name'  => 'writer']);
-        $role2->givePermissionTo('see all post','create post', 'update post', 'publish post', 'unpublish post', 'delete post');
+        $role2 = Role::create(['name'  => 'komsos']);
+        $role2->givePermissionTo('see berita paroki', 'create post', 'update post', 'publish post', 'unpublish post', 'delete post');
+
+        $role3 = Role::create(['name'  => 'pewartaan']);
+        $role3->givePermissionTo('see renungan','create post', 'update post', 'publish post', 'unpublish post', 'delete post');
+
+        $role4 = Role::create(['name'   => 'sekretariat']);
+        $role4->givePermissionTo('see information', 'create post', 'update post', 'publish post', 'unpublish post', 'delete post');
     }
 }

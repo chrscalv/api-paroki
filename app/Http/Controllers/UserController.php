@@ -24,6 +24,17 @@ class UserController extends Controller
         }
     }
 
+    public function me(){
+        $user = Auth::user();
+        $role = $user->getRoleNames();
+        return response()->json([
+            'data' => [
+                'user'  => $user,
+                'role'  => $role
+            ]
+        ]);
+    }
+
     public function show($user)
     {
         $user = Auth::user();
