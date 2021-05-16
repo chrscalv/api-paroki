@@ -39,9 +39,18 @@ class PostController extends Controller
         return response()->json(Post::with('tagged','User','Category')->where('is_published','=', true)->orderBy('id', 'DESC')->get(), 200);
     }
 
+    public function latest(Category $category){
+        return response()->json(Post::where('category_id', '=', $category->id)->take(3)->get(),200);
+    }
+
     public function show($slug)
     {
         return response()->json(Post::where('slug', '=', $slug)->with('tagged', 'User')->get(), 200);
+    }
+
+    public function count()
+    {
+        return response()->json(Post::count(), 200);
     }
 
     public function store(Request $request)
