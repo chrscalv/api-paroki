@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\User;
-use Spatie\Permission\Models\Role;
+use Spatie\Permission\Models\Role as roles;
 use Spatie\Permission\Models\Permission;
 use Validator;
 use Auth;
@@ -26,11 +26,11 @@ class UserController extends Controller
 
     public function me(){
         $user = Auth::user();
-        $role = $user->getRoleNames();
+        $role = $user ;
         return response()->json([
             'data' => [
                 'user'  => $user,
-                'role'  => $role
+                'role'  => $role->getRoleNames()
             ]
         ]);
     }
@@ -72,9 +72,12 @@ class UserController extends Controller
 
         if (Auth::attempt($request->only(['email', 'password']))) {
             $status = 200;
+            $user = Auth::user();
+            $role = $user->getRoleNames();
             $response = [
-                'user' => Auth::user(),
-                'token' => Auth::user()->createToken('blog')->accessToken,
+                'profile'  => $user,
+                'role'     => $role,
+                'access_token' => Auth::user()->createToken('blog')->accessToken,
             ];
         }
 

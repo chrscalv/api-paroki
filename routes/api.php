@@ -20,11 +20,14 @@ use App\Http\Controllers\ImageController;
 |
 */
 
-Route::get('/post/all', [PostController::class, 'all']);
-Route::get('/post/latest', [PostController::class, 'latest']);
-Route::get('/post/{category}/all', [PostController::class, 'allByCategory']);
-Route::get('/post/{slug}', [PostController::class, 'show']);
+Route::get('/posts', [PostController::class, 'all']);
+Route::get('/posts/{category}/latest', [PostController::class, 'latest']);
+Route::get('/posts/{category}/all', [PostController::class, 'allByCategory']);
+Route::get('/posts/{slug}', [PostController::class, 'show']);
+Route::get('/post/counts', [PostController::class, 'count']);
 Route::get('/category/{id}', [CategoryController::class, 'show']);
+ 
+
 
 
 Route::middleware('auth:api')->group(function(){
@@ -35,7 +38,6 @@ Route::middleware('auth:api')->group(function(){
     Route::post('/post/{id}/arcvihed', [PostController::class, 'archived']);
     Route::post('/post/{slug}', [PostController::class, 'update']);
     Route::delete('/post/{post}/delete', [PostController::class, 'destroy']);
-
     //api category
     Route::get('/category', [CategoryController::class, 'index']);
     Route::post('/category', [CategoryController::class, 'store']);

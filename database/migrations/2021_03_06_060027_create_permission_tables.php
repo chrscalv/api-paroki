@@ -96,7 +96,7 @@ class CreatePermissionTables extends Migration
      * Reverse the migrations.
      *
      * @return void
-     */
+     */ 
     public function down()
     {
         $tableNames = config('permission.table_names');
